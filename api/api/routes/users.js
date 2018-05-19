@@ -43,6 +43,7 @@ router.post('/', (req,res,next) => {
 
 			user.save()
 				.then(result => {
+
 					console.log(result);
 			
 					res.status(201).json({
@@ -93,7 +94,17 @@ router.put('/:id', ( req,res,next) => {
 			res.status(500).json(err);
 		} else {
 			for (const ops of req.body){
-				user[ops.propName] = ops.value;
+				const field = ops.propName
+				const value = ops.value
+				let validade = joi.validate({[field]: value}, joiVal, (err, value) => {
+					if (err) {
+						console.log(err);
+						res.status(500).json({error: err});
+					} else {
+						user[ops.propName] = ops.value;
+					}
+				})
+				// user[ops.propName] = ops.value;
 			}
 		}
 		user.save()

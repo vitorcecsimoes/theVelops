@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './App.css';
 import UserInput from './Components/UserInput/UserInput';
 import UserOutput from './Components/UserOutput/UserOutput';
-import Test from './Components/Test/Test';
 import ErrorMessage from './Components/ErrorMessage/ErrorMessage';
 import axios from 'axios';
 
@@ -30,6 +29,12 @@ class App extends Component {
 		errorMessage: null
 	}
 
+
+	//--------------------------------------\\
+	//				HANDLERS				\\
+	//--------------------------------------\\
+
+	//-------------SCREEN HANDLERS-----------\\
 	showLoginHandler =() =>{
 		this.setState({showLogin: true});
 		this.setState({showGetUser: false});
@@ -59,6 +64,9 @@ class App extends Component {
 		this.setState({showGetUser: false});
 	}
 
+
+	//-------------INPUT HANDLERS-----------\\
+
 	inputChangedLoginHandler = (event,field) =>{
 		const tempUser = {...this.state.tempUser};
 		tempUser[field] = event.target.value;
@@ -77,7 +85,10 @@ class App extends Component {
 		this.setState({tempUser: tempUser});
 	}
 
-	getUserHandler =() => {
+
+	//-------------API HANDLERS-----------\\
+
+	loginHandler =() => {
 		axios.get(usersUrl)
 			.then(response => {
 				const user = response.data.filter(user => user.email === this.state.tempUser.email);
@@ -85,6 +96,7 @@ class App extends Component {
 					if (user[0].password===this.state.tempUser.password){
 						this.setState({users: user});
 						this.setState({usersLoaded: true});
+						this.showGetUserHandler();
 					} else{
 						this.setState({errorMessage: "invalid password"});
 						this.showLoginHandler();
@@ -102,8 +114,13 @@ class App extends Component {
 				.then( ()=>{
 					const user = [this.state.tempUser];
 					this.setState({users: user, errorMessage: null});
-					this.getUserHandler();
+					this.loginHandler();
 					this.showGetUserHandler();
+				})
+				.catch(err => {
+					console.log(err);
+					this.setState ({errorMessage: "invalid entry"});
+					this.showSignUpHandler();
 				});
 		} else {
 			this.setState ({errorMessage: "passwords don't match!"});
@@ -127,7 +144,16 @@ class App extends Component {
 			propName: "phone",
 			value: this.state.tempUser.phone
 		}];
-		axios.put(usersUrl+id, editor);
+		axios.put(usersUrl+id, editor)
+			.then(() =>{
+				this.setState ({errorMessage: null});
+				this.showGetUserHandler();
+			})
+			.catch(err => {
+				console.log(err);
+				this.setState ({errorMessage: "invalid entry"});
+				this.showEditUserHandler();
+			});
 	}
 
 	editPasswordHandler =() =>{
@@ -138,9 +164,16 @@ class App extends Component {
 					propName: "password",
 					value: this.state.tempUser.password
 				}];
-				axios.put(usersUrl+id, editor);
-				this.setState ({errorMessage: null});
-				this.showGetUserHandler();
+				axios.put(usersUrl+id, editor)
+					.then( () =>{
+						this.setState ({errorMessage: null});
+						this.showGetUserHandler();
+					})
+					.catch(err => {
+						console.log(err);
+						this.setState ({errorMessage: "invalid entry"});
+						this.showEditPasswordHandler();
+					});
 			} else {
 				this.setState ({errorMessage: "passwords don't match!"});
 				this.showEditPasswordHandler();
@@ -152,7 +185,21 @@ class App extends Component {
 	}
 
 
+	deleteUsersHandler =() =>{
+		const id = this.state.users[0]._id;
+		axios.delete(usersUrl+id)
+			.catch(err => {
+				console.log(err);
+				this.setState ({errorMessage: "delete error"});
+				this.showGetUserHandler();
+			});
 
+	}
+
+
+	//--------------------------------------\\
+	//				  RENDER				\\
+	//--------------------------------------\\
 
 	render() {
 
@@ -176,12 +223,7 @@ class App extends Component {
 					 changed = {(event) => this.inputChangedLoginHandler(event, "password")}
 					 fieldName = {"password"}/>
 				<div>
-					<button
-						style = {style}
-						onClick={()=> {
-							this.showGetUserHandler();
-							this.getUserHandler();
-						}}>Login</button>
+					<button style = {style} onClick={this.loginHandler}>Login</button>
 				</div>
 				<div>
 					<button style = {style} onClick={this.showSignUpHandler}>Sign Up</button>
@@ -195,6 +237,8 @@ class App extends Component {
 			return (<div className="App">
 				<h1>Create Users</h1>
 				<ErrorMessage message = {this.state.errorMessage}/>
+				<p></p>
+				<p></p>
 				<UserInput
 					changed = {(event) => this.inputChangedLoginHandler(event, "email")}
 					fieldName = {"e-mail"}/>
@@ -214,17 +258,13 @@ class App extends Component {
 					changed = {(event) => this.inputChangedLoginHandler(event, "rePassword")}
 					fieldName = {"re-type password"}/>
 				<div>
-					<button
-						style = {style}
-						onClick={ () =>{
-							this.submitUserHandler();
-						}}>Submit</button>
+					<button style = {style}	onClick={ this.submitUserHandler}>Submit</button>
 				</div>
 			</div>
 			);
 		};
 
-		//----------------GET USERs SCREEN-----------\\
+		//----------------GET USER SCREEN-----------\\
 		if (this.state.showGetUser){
 			if (this.state.usersLoaded) {
 				return (<div className="App">
@@ -253,6 +293,8 @@ class App extends Component {
 			const dummyUser = {...this.state.users[0]};
 			return (<div className="App">
 				<h1>Edit User</h1>
+				<p></p>
+				<p></p>
 				<UserInput
 					changed = {(event) => this.inputChangedEditUserHandler(event, "email")}
 					fieldName = {dummyUser.email}/>
@@ -266,15 +308,15 @@ class App extends Component {
 					changed = {(event) => this.inputChangedEditUserHandler(event, "phone")}
 					fieldName = {dummyUser.phone}/>
 				<div>
-					<button
-						style = {style}
-						onClick={ () =>{
-							this.showGetUserHandler();
-							this.editUserHandler();
-						}}>Submit</button>
+					<button	style = {style}	onClick={this.editUserHandler}>Submit</button>
 				</div>
 				<div>
-					<button style = {style} onClick={this.showLoginHandler}>Delete Users</button>
+					<button 
+						style = {style} 
+						onClick={()=>{
+							this.showLoginHandler();
+							this.deleteUsersHandler();
+						}}>Delete User</button>
 				</div>
 			</div>);
 		};
