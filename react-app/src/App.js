@@ -3,23 +3,31 @@ import './App.css';
 import UserInput from './Components/UserInput/UserInput';
 import UserOutput from './Components/UserOutput/UserOutput';
 import Test from './Components/Test/Test';
+import ErrorMessage from './Components/ErrorMessage/ErrorMessage';
 import axios from 'axios';
 
+const usersUrl = 'http://127.0.0.1:3500/users/';
 
 class App extends Component {
 	
 	state ={
 		users:[],
-		login:{
-			email: "email",
-			password: "password",
+		tempUser:{
+			email: '',			
+			firstName:'',
+			lastName:'',
+			phone:'',
+			password:'',
+			rePassword: '',
+			oldPassword: ''		
 		},
 		showGetUser: false,
 		showLogin: true,
 		showSignUp: false,
 		showEditUser: false,
 		showEditPassword: false,
-		usersLoaded: false
+		usersLoaded: false,
+		errorMessage: null
 	}
 
 	showLoginHandler =() =>{
@@ -51,19 +59,98 @@ class App extends Component {
 		this.setState({showGetUser: false});
 	}
 
-	inputChangedHandler = (event, field) =>{
-	  	const loginHold = {...this.state.login};
-	  	loginHold[field] = event.target.value;
-	  	this.setState({login: loginHold});
-	};
+	inputChangedLoginHandler = (event,field) =>{
+		const tempUser = {...this.state.tempUser};
+		tempUser[field] = event.target.value;
+		this.setState({tempUser: tempUser});
+	}
 
-	getAllHandler =() => {
-		axios.get('http://127.0.0.1:3500/users/')
+	inputChangedEditUserHandler = (event,field) =>{
+		const tempUser = this.state.users[0];
+		tempUser[field] = event.target.value;
+		this.setState({tempUser: tempUser});
+	}
+
+	inputChangedEditPasswordHandler = (event,field) =>{
+		const tempUser = {...this.state.tempUser};
+		tempUser[field] = event.target.value;
+		this.setState({tempUser: tempUser});
+	}
+
+	getUserHandler =() => {
+		axios.get(usersUrl)
 			.then(response => {
-				this.setState({users: response.data});
-				this.setState({usersLoaded: true});
+				const user = response.data.filter(user => user.email === this.state.tempUser.email);
+				if (user[0]) {
+					if (user[0].password===this.state.tempUser.password){
+						this.setState({users: user});
+						this.setState({usersLoaded: true});
+					} else{
+						this.setState({errorMessage: "invalid password"});
+						this.showLoginHandler();
+					}
+				} else {
+					this.setState({errorMessage: "invalid e-mail"});
+					this.showLoginHandler();
+				}
 			});
 	}
+
+	submitUserHandler =() => {
+		if(this.state.tempUser.password === this.state.tempUser.rePassword){
+			axios.post(usersUrl, this.state.tempUser)
+				.then( ()=>{
+					const user = [this.state.tempUser];
+					this.setState({users: user, errorMessage: null});
+					this.getUserHandler();
+					this.showGetUserHandler();
+				});
+		} else {
+			this.setState ({errorMessage: "passwords don't match!"});
+			this.showSignUpHandler();
+		}
+	};
+
+
+	editUserHandler =() =>{
+		const id = this.state.users[0]._id;
+		const editor = [{
+			propName: "email",
+			value: this.state.tempUser.email
+		},{
+			propName: "firstName",
+			value: this.state.tempUser.firstName
+		},{	
+			propName: "lastName",
+			value: this.state.tempUser.lastName
+		},{
+			propName: "phone",
+			value: this.state.tempUser.phone
+		}];
+		axios.put(usersUrl+id, editor);
+	}
+
+	editPasswordHandler =() =>{
+		const id = this.state.users[0]._id;
+		if (this.state.tempUser.oldPassword === this.state.users[0].password){
+			if(this.state.tempUser.password === this.state.tempUser.rePassword){
+				const editor = [{
+					propName: "password",
+					value: this.state.tempUser.password
+				}];
+				axios.put(usersUrl+id, editor);
+				this.setState ({errorMessage: null});
+				this.showGetUserHandler();
+			} else {
+				this.setState ({errorMessage: "passwords don't match!"});
+				this.showEditPasswordHandler();
+			}
+		} else {
+			this.setState ({errorMessage: "invalid old password!"});
+			this.showEditPasswordHandler();
+		}
+	}
+
 
 
 
@@ -81,18 +168,19 @@ class App extends Component {
 		if (this.state.showLogin){
 			return (<div className="App">
 				<h1>Login</h1>
+				<ErrorMessage message = {this.state.errorMessage}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "email")}
-					currentName = {this.state.login.email}/>
+					changed = {(event) => this.inputChangedLoginHandler(event, "email")}
+					fieldName = {"e-mail"}/>
 				<UserInput
-					 changed = {(event) => this.inputChangedHandler(event, "password")}
-					 currentName = {this.state.login.password}/>
+					 changed = {(event) => this.inputChangedLoginHandler(event, "password")}
+					 fieldName = {"password"}/>
 				<div>
 					<button
 						style = {style}
 						onClick={()=> {
 							this.showGetUserHandler();
-							this.getAllHandler();
+							this.getUserHandler();
 						}}>Login</button>
 				</div>
 				<div>
@@ -106,26 +194,31 @@ class App extends Component {
 		if (this.state.showSignUp){
 			return (<div className="App">
 				<h1>Create Users</h1>
+				<ErrorMessage message = {this.state.errorMessage}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "email")}
-					currentName = {this.state.users.email}/>
+					changed = {(event) => this.inputChangedLoginHandler(event, "email")}
+					fieldName = {"e-mail"}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "firstName")}
-					currentName = {this.state.users.firstName}/>
+					changed = {(event) => this.inputChangedLoginHandler(event, "firstName")}
+					fieldName = {"First Name"}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "lastName")}
-					currentName = {this.state.users.lastName}/>
+					changed = {(event) => this.inputChangedLoginHandler(event, "lastName")}
+					fieldName = {"Last Name"}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "phone")}
-					currentName = {this.state.users.phone}/>
+					changed = {(event) => this.inputChangedLoginHandler(event, "phone")}
+					fieldName = {"personal phone" }/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "password")}
-					currentName = {this.state.users.password}/>
+					changed = {(event) => this.inputChangedLoginHandler(event, "password")}
+					fieldName = {"password" }/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "password")}
-					currentName = "re-type password"/>
+					changed = {(event) => this.inputChangedLoginHandler(event, "rePassword")}
+					fieldName = {"re-type password"}/>
 				<div>
-					<button style = {style} onClick={this.showGetUserHandler}>Submit</button>
+					<button
+						style = {style}
+						onClick={ () =>{
+							this.submitUserHandler();
+						}}>Submit</button>
 				</div>
 			</div>
 			);
@@ -134,14 +227,12 @@ class App extends Component {
 		//----------------GET USERs SCREEN-----------\\
 		if (this.state.showGetUser){
 			if (this.state.usersLoaded) {
-				const user = this.state.users.filter(user => user.email === this.state.login.email);
-				console.log(user);
 				return (<div className="App">
 					<h1>Get Users</h1>
-					<UserOutput value = {user[0].email}/>
-					<UserOutput value = {user[0].firstName}/>
-					<UserOutput value = {user[0].lastName}/>
-					<UserOutput value = {user.phone}/>
+					<UserOutput value = {this.state.users[0].email}/>
+					<UserOutput value = {this.state.users[0].firstName}/>
+					<UserOutput value = {this.state.users[0].lastName}/>
+					<UserOutput value = {this.state.users[0].phone}/>
 					<div>
 						<button style = {style} onClick={this.showEditUserHandler}>Edit Users</button>
 					</div>
@@ -157,24 +248,30 @@ class App extends Component {
 		};
 
 
-		//----------------EDIT USERs SCREEN-----------\\
+		//----------------EDIT USER SCREEN-----------\\
 		if (this.state.showEditUser){
+			const dummyUser = {...this.state.users[0]};
 			return (<div className="App">
-				<h1>Edit Users</h1>
+				<h1>Edit User</h1>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "email")}
-					currentName = {this.state.users.email}/>
+					changed = {(event) => this.inputChangedEditUserHandler(event, "email")}
+					fieldName = {dummyUser.email}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "firstName")}
-					currentName = {this.state.users.firstName}/>
+					changed = {(event) => this.inputChangedEditUserHandler(event, "firstName")}
+					fieldName = {dummyUser.firstName}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "lastName")}
-					currentName = {this.state.users.lastName}/>
+					changed = {(event) => this.inputChangedEditUserHandler(event, "lastName")}
+					fieldName = {dummyUser.lastName}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "phone")}
-					currentName = {this.state.users.phone}/>
+					changed = {(event) => this.inputChangedEditUserHandler(event, "phone")}
+					fieldName = {dummyUser.phone}/>
 				<div>
-					<button style = {style} onClick={this.showGetUserHandler}>Submit</button>
+					<button
+						style = {style}
+						onClick={ () =>{
+							this.showGetUserHandler();
+							this.editUserHandler();
+						}}>Submit</button>
 				</div>
 				<div>
 					<button style = {style} onClick={this.showLoginHandler}>Delete Users</button>
@@ -187,17 +284,18 @@ class App extends Component {
 		if (this.state.showEditPassword){
 			return (<div className="App">
 				<h1>Edit Password</h1>
+				<ErrorMessage message = {this.state.errorMessage}/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "password")}
-					currentName = "old password"/>
+					changed = {(event) => this.inputChangedEditPasswordHandler(event, "oldPassword")}
+					fieldName = "old password"/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "password")}
-					currentName = "new password"/>
+					changed = {(event) => this.inputChangedEditPasswordHandler(event, "password")}
+					fieldName = "new password"/>
 				<UserInput
-					changed = {(event) => this.inputChangedHandler(event, "password")}
-					currentName = "re-type password"/>
+					changed = {(event) => this.inputChangedEditPasswordHandler(event, "rePassword")}
+					fieldName = "re-type password"/>
 				<div>
-					<button style = {style} onClick={this.showGetUserHandler}>Submit</button>
+					<button style = {style} onClick={this.editPasswordHandler}>Submit</button>
 				</div>
 			</div>);
 		};

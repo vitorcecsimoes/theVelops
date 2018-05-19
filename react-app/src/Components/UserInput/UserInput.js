@@ -8,7 +8,7 @@ const userInput = (props) =>{
 			<input 
 				type = "text"
 				onChange={props.changed}
-				value={props.currentName}/>
+				defaultValue = {props.fieldName}/>
 		</div>
 	);
 };

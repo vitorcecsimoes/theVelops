@@ -1,13 +1,15 @@
 const express = require ('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const joi = require('joi');
 
 const User = require('../models/user_model');
+const joiVal = require ('../models/joi_user_validation');
 
 //Get all users in a JSON array
 router.get('/', (req, res, next) =>{
 	User.find()
-		.select('_id email firstName lastName phone')
+		.select('-__v')
 		.exec()
 		.then( docs =>{
 			res.status(200).json(docs);
@@ -22,32 +24,45 @@ router.get('/', (req, res, next) =>{
 
 //Create a new user
 router.post('/', (req,res,next) => {
-	const user = new User({
+	const user = {
 		_id: new mongoose.Types.ObjectId(),
 		email: req.body.email,
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
-		phone: req.body.phone
+		phone: req.body.phone,
+		password: req.body.password
+	};
+	
+	const validation = joi.validate(user, joiVal, (err, value) =>{
+		if (err) {
+			console.log(err);
+			res.status(500).json({error: err});
+		} else {
+	
+			const user = new User(value);
+
+			user.save()
+				.then(result => {
+					console.log(result);
+			
+					res.status(201).json({
+						message: 'Created user successfully',
+						user: value
+					});
+				})
+				.catch(err => {
+					console.log(err);
+					res.status(500).json({error: err});
+				});
+		};
 	});
-	user.save()
-	.then(result => {
-		console.log(result);
-		
-		res.status(201).json({
-			message: 'Created user successfully',
-		});
-	})
-	.catch(err => {
-		console.log(err);
-		res.status(500).json({error: err});
-		});
 });
 
 //GET single user provided the ID
 router.get('/:id', (req, res, next) =>{
-	const id = req.params.id
+	const id = req.params.id;
 	User.findById(id)
-		.select()
+		.select('-__v')
 		.exec()
 		.then( doc =>{
 			if(doc){
@@ -62,7 +77,7 @@ router.get('/:id', (req, res, next) =>{
 		})
 		.catch(err =>{
 			console.log(err);
-			rse.status(500).json({
+			res.status(500).json({
 				error: err
 			});
 		});
@@ -82,15 +97,16 @@ router.put('/:id', ( req,res,next) => {
 			}
 		}
 		user.save()
-		.then(result => {
-			res.status(201).json({
-				message: 'User updated!',
+			.then(result => {
+				console.log(result);
+				res.status(201).json({
+					message: 'User updated!',
+				});
+			})
+			.catch(err => {
+				console.log(err);
+				res.status(500).json({error: err});
 			});
-		})
-		.catch(err => {
-			console.log(err);
-			res.status(500).json({error: err});
-		});
 	});
 
 });
