@@ -13,7 +13,28 @@ The REST API is in the folder "api" and it has the following routes
 
 All the responses recieved are in JSON format
 
+The user in the **POST** request must have the following properties:
+
+```
+{
+	email: '',
+	firstName: '',
+	lastName: '',
+	phone: '',
+	password: ''
+}
+```
+
 With the **PUT** it is possible to edit any number of properties in the user object.
+The request must be an JSON array and the elements must have two properties:
+
+```
+{
+	propName: "propertyToBeAltered",
+	value: "newPropertyValue" 
+}
+```
+
 
 ## Part Two
 The REACT APP is in the react-app folder
