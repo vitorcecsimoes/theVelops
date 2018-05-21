@@ -101,17 +101,12 @@ Uppon any entry error, or invalid login a message in red is displayed below the 
 
 ### API
 
-- Path for user Cars (**GET**,**POST**,**PUT** and **DELETE**)
 - Preventing the creation of two users with the same e-mail
-- Request body validation
-- Upload of images to s3
+- Upload of images to AWS s3
 - Extra features
 
 
 ### APP
 
 - Login with Facebook
-- User Cars page
-- Crate Car page
-- Edit Car page
 - Extra features
