@@ -29,7 +29,7 @@ app.use ((req,res,next) =>{
 });
 
 //Request routers
-app.use('/users', userRoutes);
+app.use('/', userRoutes);
 
 
 //Error handling

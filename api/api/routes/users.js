@@ -4,10 +4,16 @@ const mongoose = require('mongoose');
 const joi = require('joi');
 
 const User = require('../models/user_model');
-const joiVal = require ('../models/joi_user_validation');
+const userJoiVal = require ('../models/user_joi_validation');
+const Car = require ('../models/car_model');
+const carJoiVal = require ('../models/car_joi_validation');
+
+//--------------------------------------\\
+//			USER OEPRATIONS				\\
+//--------------------------------------\\
 
 //Get all users in a JSON array
-router.get('/', (req, res, next) =>{
+router.get('/users', (req, res, next) =>{
 	User.find()
 		.select('-__v')
 		.exec()
@@ -22,18 +28,20 @@ router.get('/', (req, res, next) =>{
 		});
 });
 
+
 //Create a new user
-router.post('/', (req,res,next) => {
+router.post('/users', (req,res,next) => {
 	const user = {
 		_id: new mongoose.Types.ObjectId(),
 		email: req.body.email,
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
 		phone: req.body.phone,
-		password: req.body.password
+		password: req.body.password,
+		cars:[]
 	};
 	
-	const validation = joi.validate(user, joiVal, (err, value) =>{
+	const validation = joi.validate(user, userJoiVal, (err, value) =>{
 		if (err) {
 			console.log(err);
 			res.status(500).json({error: err});
@@ -59,9 +67,10 @@ router.post('/', (req,res,next) => {
 	});
 });
 
+
 //GET single user provided the ID
-router.get('/:id', (req, res, next) =>{
-	const id = req.params.id;
+router.get('/users/:iuserId', (req, res, next) =>{
+	const id = req.params.userId;
 	User.findById(id)
 		.select('-__v')
 		.exec()
@@ -85,8 +94,9 @@ router.get('/:id', (req, res, next) =>{
 });
 
 
-router.put('/:id', ( req,res,next) => {
-	const id = req.params.id;
+//Edit porperties of existing user provided ID
+router.put('/users/:userId', ( req,res,next) => {
+	const id = req.params.userId;
 
 	User.findById(id, (err, user) => {
 		if(err){
@@ -96,15 +106,15 @@ router.put('/:id', ( req,res,next) => {
 			for (const ops of req.body){
 				const field = ops.propName
 				const value = ops.value
-				let validade = joi.validate({[field]: value}, joiVal, (err, value) => {
+				let validade = joi.validate({[field]: value}, userJoiVal, (err, value) => {
 					if (err) {
 						console.log(err);
 						res.status(500).json({error: err});
 					} else {
-						user[ops.propName] = ops.value;
+							user[ops.propName] = ops.value;
+						
 					}
 				})
-				// user[ops.propName] = ops.value;
 			}
 		}
 		user.save()
@@ -123,8 +133,9 @@ router.put('/:id', ( req,res,next) => {
 });
 
 
-router.delete('/:id', (req,res,next) => {
-	const id = req.params.id; 
+//Delete existing user provided ID
+router.delete('/users/:userId', (req,res,next) => {
+	const id = req.params.userId; 
 	User.remove({ _id: id })
 		.exec()
 		.then(result => {
@@ -139,5 +150,133 @@ router.delete('/:id', (req,res,next) => {
 			});
 		});
 });
+
+
+//--------------------------------------\\
+//			CAR OPERATIONS				\\
+//--------------------------------------\\
+
+//Get all cars of especific user in a JSON array
+
+router.get('/users/:userId/cars', (req, res, next) =>{
+	const userId = req.params.userId;
+	
+	Car.find({userId: userId})
+	.select()
+	.exec()
+	.then( doc =>{
+		if(doc){
+			res.status(200).json(doc);
+		}else{
+			res.status(404).json({
+				message: 'No valid entry for provided ID'
+			});
+		}
+	})
+	.catch(err =>{
+		console.log(err);
+		res.status(500).json({
+			error: err
+		});
+	});
+});
+
+//Add a new car to existing user
+router.post('/users/:userId/cars', (req,res,next) => {
+	const userId = req.params.userId;
+
+	const car = {
+		_id: new mongoose.Types.ObjectId(),
+		userId: userId,
+		car: req.body.car,
+		brand: req.body.brand,
+		year: req.body.year,
+		price: req.body.price,
+		color: req.body.color
+	};
+	
+	const validation = joi.validate(car, carJoiVal, (err, value) =>{
+		if (err) {
+			console.log(err);
+			res.status(500).json({error: err});
+		} else {
+	
+			const car = new Car(value);
+
+			car.save()
+				.then(result => {
+
+					console.log(result);
+			
+					res.status(201).json({
+						message: 'Created car successfully',
+						car: value
+					});
+				})
+				.catch(err => {
+					console.log(err);
+					res.status(500).json({error: err});
+				});
+		};
+	});
+});
+
+router.put('/cars/:carId', ( req,res,next) => {
+	const id = req.params.carId;
+
+	Car.findById(id, (err, car) => {
+		if(err){
+			console.log(err);
+			res.status(500).json(err);
+		} else {
+			for (const ops of req.body){
+				const field = ops.propName
+				const value = ops.value
+				let validade = joi.validate({[field]: value}, carJoiVal, (err, value) => {
+					if (err) {
+						console.log(err);
+						res.status(500).json({error: err});
+					} else {
+							car[ops.propName] = ops.value;
+						
+					}
+				})
+			}
+		}
+		car.save()
+			.then(result => {
+				console.log(result);
+				res.status(201).json({
+					message: 'Car updated!',
+				});
+			})
+			.catch(err => {
+				console.log(err);
+				res.status(500).json({error: err});
+			});
+	});
+
+});
+
+//Delete existing car provided ID
+router.delete('/cars/:carId', (req,res,next) => {
+	const id = req.params.carId; 
+	Car.remove({ _id: id })
+		.exec()
+		.then(result => {
+
+			res.status(200).json({
+				message: 'Car deleted',
+			});
+		})
+		.catch(err => {
+			console.log(err);
+			res.status(500).json({
+				error: err
+			});
+		});
+});
+
+
 
 module.exports = router;

@@ -1,0 +1,29 @@
+.UserCar {
+	margin: 15px;
+	width: 90%;
+	padding: 16px;
+    border: 1px solid #ACACAC;
+    box-shadow: 0 2px 3px #ACACAC;
+    margin: auto;
+    margin-top: 10px;
+    box-sizing: border-box;
+    height: 220px;
+}
+
+.Column {
+    float: left;
+    width: 33.33%;
+    min-height: 10em;
+	display: flex;
+	align-items: center;
+}
+
+.Row: {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.Center{
+	justify-content: center;
+}

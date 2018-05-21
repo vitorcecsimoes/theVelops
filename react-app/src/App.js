@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+
 import './App.css';
+import './Button.css';
+
 import UserInput from './Components/UserInput/UserInput';
 import UserOutput from './Components/UserOutput/UserOutput';
 import ErrorMessage from './Components/ErrorMessage/ErrorMessage';
-import axios from 'axios';
+import UserCar from './Components/UserCar/UserCar';
+
 
 const usersUrl = 'http://127.0.0.1:3500/users/';
 
@@ -20,11 +25,25 @@ class App extends Component {
 			rePassword: '',
 			oldPassword: ''		
 		},
+
+		cars:[],
+		tempCar:{
+			brand: '',			
+			name:'',
+			year:'',
+			price:'',
+			color:'',	
+		},
+
 		showGetUser: false,
 		showLogin: true,
 		showSignUp: false,
 		showEditUser: false,
 		showEditPassword: false,
+		showGetCar: false,
+		showEditCar: false,
+		showAddCar: false,
+		carLoaded:false,
 		usersLoaded: false,
 		errorMessage: null
 	}
@@ -36,34 +55,134 @@ class App extends Component {
 
 	//-------------SCREEN HANDLERS-----------\\
 	showLoginHandler =() =>{
-		this.setState({showLogin: true});
-		this.setState({showGetUser: false});
-		this.setState({showEditUser: false});
+		this.setState({
+			showGetUser: false,
+			showLogin: true,
+			showSignUp: false,
+			showEditUser: false,
+			showEditPassword: false,
+			showGetCar: false,
+			showEditCar: false,
+			showAddCar: false
+		});
 	}
 
 	showSignUpHandler =()=>{
-		this.setState({showSignUp: true});
-		this.setState({showLogin: false});
+		this.setState({
+			showGetUser: false,
+			showLogin: false,
+			showSignUp: true,
+			showEditUser: false,
+			showEditPassword: false,
+			showGetCar: false,
+			showEditCar: false,
+			showAddCar: false
+		});
 	}
 
 	showGetUserHandler =() =>{
-		this.setState({showGetUser: true});
-		this.setState({showLogin: false});
-		this.setState({showSignUp: false});
-		this.setState({showEditUser: false});
-		this.setState({showEditPassword: false});
+		this.setState({
+			showGetUser: true,
+			showLogin: false,
+			showSignUp: false,
+			showEditUser: false,
+			showEditPassword: false,
+			showGetCar: false,
+			showEditCar: false,
+			showAddCar: false
+		});
+	}
+
+	showGetCarHandler =() =>{
+		this.setState({
+			showGetUser: false,
+			showLogin: false,
+			showSignUp: false,
+			showEditUser: false,
+			showEditPassword: false,
+			showGetCar: true,
+			showEditCar: false,
+			showAddCar: false
+		});
+	}
+
+	showGetCarHandler =() =>{
+		this.setState({
+			showGetUser: false,
+			showLogin: false,
+			showSignUp: false,
+			showEditUser: false,
+			showEditPassword: false,
+			showGetCar: true,
+			showEditCar: false,
+			showAddCar: false
+		});
+	}
+
+	showGetCarHandler =() =>{
+		this.setState({
+			showGetUser: false,
+			showLogin: false,
+			showSignUp: false,
+			showEditUser: false,
+			showEditPassword: false,
+			showGetCar: true,
+			showEditCar: false,
+			showAddCar: false
+		});
 	}
 
 	showEditUserHandler =() =>{
-		this.setState({showEditUser: true});
-		this.setState({showGetUser: false});
+		this.setState({
+			showGetUser: false,
+			showLogin: false,
+			showSignUp: false,
+			showEditUser: true,
+			showEditPassword: false,
+			showGetCar: false,
+			showEditCar: false,
+			showAddCar: false
+		});
 	}
 
 	showEditPasswordHandler =() =>{
-		this.setState({showEditPassword: true});
-		this.setState({showGetUser: false});
+		this.setState({
+			showGetUser: false,
+			showLogin: false,
+			showSignUp: false,
+			showEditUser: false,
+			showEditPassword: true,
+			showGetCar: false,
+			showEditCar: false,
+			showAddCar: false
+		});
 	}
 
+	showEditCarHandler =() =>{
+		this.setState({
+			showGetUser: false,
+			showLogin: false,
+			showSignUp: false,
+			showEditUser: false,
+			showEditPassword: false,
+			showGetCar: false,
+			showEditCar: true,
+			showAddCar: false
+		});
+	}
+
+	showAddCarHandler =() =>{
+		this.setState({
+			showGetUser: false,
+			showLogin: false,
+			showSignUp: false,
+			showEditUser: false,
+			showEditPassword: false,
+			showGetCar: false,
+			showEditCar: false,
+			showAddCar: true
+		});
+	}
 
 	//-------------INPUT HANDLERS-----------\\
 
@@ -204,13 +323,6 @@ class App extends Component {
 	render() {
 
 
-		const style ={
-			font: 'inherit',
-			padding: '8px',
-			margin: '5px'
-		};
-
-
 		//----------------LOGIN SCREEN-----------\\
 		if (this.state.showLogin){
 			return (<div className="App">
@@ -223,10 +335,10 @@ class App extends Component {
 					 changed = {(event) => this.inputChangedLoginHandler(event, "password")}
 					 fieldName = {"password"}/>
 				<div>
-					<button style = {style} onClick={this.loginHandler}>Login</button>
+					<button className="Button" onClick={this.showGetCarHandler}>Login</button>
 				</div>
 				<div>
-					<button style = {style} onClick={this.showSignUpHandler}>Sign Up</button>
+					<button className="Button" onClick={this.showSignUpHandler}>Sign Up</button>
 				</div>
 				
 			</div>);
@@ -258,34 +370,110 @@ class App extends Component {
 					changed = {(event) => this.inputChangedLoginHandler(event, "rePassword")}
 					fieldName = {"re-type password"}/>
 				<div>
-					<button style = {style}	onClick={ this.submitUserHandler}>Submit</button>
+					<button className="Button"	onClick={this.showGetCarHandler}>Submit</button>
 				</div>
 			</div>
 			);
 		};
 
-		//----------------GET USER SCREEN-----------\\
-		if (this.state.showGetUser){
-			if (this.state.usersLoaded) {
-				return (<div className="App">
-					<h1>Get Users</h1>
-					<UserOutput value = {this.state.users[0].email}/>
-					<UserOutput value = {this.state.users[0].firstName}/>
-					<UserOutput value = {this.state.users[0].lastName}/>
-					<UserOutput value = {this.state.users[0].phone}/>
-					<div>
-						<button style = {style} onClick={this.showEditUserHandler}>Edit Users</button>
-					</div>
-					<div>
-						<button style = {style} onClick={this.showEditPasswordHandler}>Edit Password</button>
-					</div>
-					<div>
-						<button style = {style} onClick={this.showLoginHandler}>Logout</button>
-					</div>
+
+		//----------------GET CAR SCREEN-----------\\
+		if (this.state.showGetCar){
+			//if (this.state.carLoaded) {
+				return (<div className = "App">
+					<h1>Get User Car</h1>
+					<UserCar/>
+					<UserCar/>
+					<button className="Button" onClick={ this.showEditUserHandler}>Edit User</button>
+					<button className="Button" onClick={ this.showEditPasswordHandler}>Edit Password</button>
+					<button className="Button" onClick={ this.showLoginHandler}>Logout</button>
+					<button className="Button" onClick={ this.showAddCarHandler}>Add Car</button>
 				</div>);
-			};
-			return(<p>Loading...</p>);
+			//};
+			//return(<p>Loading...</p>);
 		};
+
+
+		//----------------EDIT CAR SCREEN-----------\\
+		if (this.state.showEditCar){
+			return (<div className = "App">
+				<h1>Edit User Car</h1>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "brand")}
+					fieldName = {"Brand"}/>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "name")}
+					fieldName = {"Name"}/>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "year")}
+					fieldName = {"Year"}/>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "price")}
+					fieldName = {"Price"}/>
+				<div>
+					<button className = "Button">Edit image</button>
+				</div>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "color")}
+					fieldName = {"Color"}/>
+				<div>
+					<button className="Button" onClick={ this.showGetCarHandler}>Submit</button>
+				</div>
+			</div>);
+		};
+
+
+		//----------------ADD CAR SCREEN-----------\\
+		if (this.state.showAddCar){
+			return (<div className = "App">
+				<h1>Edit User Car</h1>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "brand")}
+					fieldName = {"Brand"}/>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "name")}
+					fieldName = {"Name"}/>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "year")}
+					fieldName = {"Year"}/>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "price")}
+					fieldName = {"Price"}/>
+				<div>
+					<button className = "Button">Add image</button>
+				</div>
+				<UserInput
+					changed = {(event) => this.inputChangedCarHandler(event, "color")}
+					fieldName = {"Color"}/>
+				<div>
+					<button className="Button" onClick={ this.showGetCarHandler}>Submit</button>
+				</div>
+			</div>);
+		};
+
+
+		//----------------GET USER SCREEN-----------\\
+		// if (this.state.showGetUser){
+		// 	if (this.state.usersLoaded) {
+		// 		return (<div className="App">
+		// 			<h1>Get Users</h1>
+		// 			<UserOutput value = {this.state.users[0].email}/>
+		// 			<UserOutput value = {this.state.users[0].firstName}/>
+		// 			<UserOutput value = {this.state.users[0].lastName}/>
+		// 			<UserOutput value = {this.state.users[0].phone}/>
+		// 			<div>
+		// 				<button className="Button" onClick={this.showEditUserHandler}>Edit Users</button>
+		// 			</div>
+		// 			<div>
+		// 				<button className="Button" onClick={this.showEditPasswordHandler}>Edit Password</button>
+		// 			</div>
+		// 			<div>
+		// 				<button className="Button" onClick={this.showLoginHandler}>Logout</button>
+		// 			</div>
+		// 		</div>);
+		// 	};
+		// 	return(<p>Loading...</p>);
+		//};
 
 
 		//----------------EDIT USER SCREEN-----------\\
@@ -308,13 +496,13 @@ class App extends Component {
 					changed = {(event) => this.inputChangedEditUserHandler(event, "phone")}
 					fieldName = {dummyUser.phone}/>
 				<div>
-					<button	style = {style}	onClick={this.editUserHandler}>Submit</button>
+					<button	className="Button" onClick={this.showGetCarHandler}>Submit</button>
 				</div>
 				<div>
 					<button 
-						style = {style} 
+						className="Button" 
 						onClick={()=>{
-							this.showLoginHandler();
+							//this.showLoginHandler();
 							this.deleteUsersHandler();
 						}}>Delete User</button>
 				</div>
@@ -337,7 +525,7 @@ class App extends Component {
 					changed = {(event) => this.inputChangedEditPasswordHandler(event, "rePassword")}
 					fieldName = "re-type password"/>
 				<div>
-					<button style = {style} onClick={this.editPasswordHandler}>Submit</button>
+					<button className="Button" onClick={this.showGetCarHandler}>Submit</button>
 				</div>
 			</div>);
 		};

@@ -1,0 +1,9 @@
+.Button{
+	font: inherit;
+	padding: 7px;
+	margin: 9px;
+	width: 150px;
+	border-radius: 5px;
+	border: 1px solid black;
+	background: linear-gradient(#E6E6E6, #A7A7A8);
+}
