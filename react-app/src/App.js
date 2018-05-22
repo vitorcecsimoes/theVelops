@@ -196,8 +196,8 @@ class App extends Component {
 
 	getCarsHandler =() =>{
 		const id = this.state.users[0]._id;
-		axios.get(usersUrl+id+'/cars').
-			then(response =>{
+		axios.get(usersUrl+id+'/cars')
+			.then(response =>{
 				this.setState({cars: response.data, errorMessage: null});
 				this.showGetCarHandler();
 			})

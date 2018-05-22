@@ -8,7 +8,7 @@ const userCar = (props) =>{
 		<div className = "UserCar">
 			<div className = "Row">
 				<div className = "Column">
-					<div className = "Center">
+					<div>
 						<p>pic</p>
 					</div>
 				</div>
@@ -22,7 +22,7 @@ const userCar = (props) =>{
 					</div>
 				</div>
 				<div className = "Column">
-					<div className = "Center">
+					<div >
 						<div>
 							<button
 								className = "Button"

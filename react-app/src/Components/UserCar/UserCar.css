@@ -14,16 +14,14 @@
     float: left;
     width: 33.33%;
     min-height: 10em;
-	display: flex;
-	align-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .Row: {
     content: "";
     display: table;
     clear: both;
-}
-
-.Center{
-	justify-content: center;
+    vertical-align: middle;
 }

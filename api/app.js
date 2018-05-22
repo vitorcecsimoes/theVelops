@@ -3,7 +3,6 @@ const app = express();
 const mongoose = require ('mongoose');
 const morgan = require('morgan');
 const bodyParser = require ('body-parser');
-const AWS = require('aws-sdk');
 
 //Routes
 const userRoutes = require('./api/routes/users');
@@ -47,22 +46,6 @@ app.use((error, req, res, next) =>{
 			message: error.message
 		}
 	});
-});
-
-const albumBucketName = 'thevelops-assessment';
-const bucketRegion = 'us-east-1';
-const identityPoolId = 'C:/Users/vitorcs/.aws/credentials.txt';
-
-AWS.config.update({
-  region: bucketRegion,
-  credentials: new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: IdentityPoolId
-  })
-});
-
-var s3 = new AWS.S3({
-  apiVersion: '2006-03-01',
-  params: {Bucket: albumBucketName}
 });
 
 module.exports = app
