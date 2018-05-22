@@ -122,3 +122,19 @@ To run the API you will need to install the following node modules:
     joi
     mongoose
     morgan
+
+You may also want to change the MongoDB path in the /api/app.js
+
+#### APP
+To run the API you will need to install the following node modules:
+
+    axios
+    react
+    react-dom
+    react-scripts
+
+### Starting
+
+To start the API you will need to run `npm start` in the ./api folder, the same thing goes for the APP, you will need to run  `npm start` in the ./react-app folder.
+
+With both processes running you are good to go
