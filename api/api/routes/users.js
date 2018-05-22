@@ -38,7 +38,6 @@ router.post('/users', (req,res,next) => {
 		lastName: req.body.lastName,
 		phone: req.body.phone,
 		password: req.body.password,
-		cars:[]
 	};
 	
 	const validation = joi.validate(user, userJoiVal, (err, value) =>{
@@ -188,7 +187,7 @@ router.post('/users/:userId/cars', (req,res,next) => {
 	const car = {
 		_id: new mongoose.Types.ObjectId(),
 		userId: userId,
-		car: req.body.car,
+		model: req.body.model,
 		brand: req.body.brand,
 		year: req.body.year,
 		price: req.body.price,
@@ -221,6 +220,7 @@ router.post('/users/:userId/cars', (req,res,next) => {
 	});
 });
 
+//Edit existing car
 router.put('/cars/:carId', ( req,res,next) => {
 	const id = req.params.carId;
 

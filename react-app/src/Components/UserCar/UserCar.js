@@ -24,10 +24,14 @@ const userCar = (props) =>{
 				<div className = "Column">
 					<div className = "Center">
 						<div>
-							<button className = "Button">Edit</button>
+							<button
+								className = "Button"
+								onClick = {props.edit}>Edit</button>
 						</div>
 						<div>
-							<button className = "Button">Delete</button>
+							<button 
+								className = "Button"
+								onClick = {props.delete}>Delete</button>
 						</div>
 					</div>
 				</div>
