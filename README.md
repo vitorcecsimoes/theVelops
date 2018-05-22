@@ -2,7 +2,7 @@
 -----
 This is the solution to the theVelops Assessment
 
-## Part One
+## API
 The REST API is in the folder "api" and it has the following routes
 
 - **GET**/users - to get a JSON array from the database
@@ -55,7 +55,7 @@ The request must be an JSON array and the elements must have two properties:
 
 
 
-## Part Two
+## APP
 The REACT APP is in the react-app folder
 
 It currently has the folloeing screens:
@@ -76,37 +76,49 @@ It get users from the database comparing with the provided e-mail and validate t
 If both password are the same and no fill error was found the user is created and upload to the database.
 Then the user is redirected to the Get User screen
 
-
-#### Get User
-In the final version this screen is now disabled, however it's code is still in the App file in case you want to check it out.
-
 #### Get User Cars
 
+- It displays all the cars associated with the user.
+- Edit and delete option for each of the cars.
+- The pictures of the cars are still not displayed, it shows a "pic" placeholder instead
+- It also has buttons to all the following pages.
+
+
+#### Get User
+This page displays the user information, and it can be edited by clickng the Edit User and the Edit Password buttons.
+It also has a return button to return to the Get User Cars page
+
 #### Edit User
+It has all the fields to edit the user information. The fields are already filled with the current user information.
 
 #### Edit Password
 
+-an old-password field that confirms if the old password is valid before sending the PUT request to change password
+-a new password and a re-type password field that validade with each other to check if both entry are the same before sending the put request. 
+
 #### Add User Car
 
+- With all the fields to fill the car information required by the API
+- A submit image button is also in place, however it is still non-functional
+
 #### Edit User Car
+
+- With all the fields to fill the car information required by the API
+- An edit image button is also in place, however it is still non-functional
 
 
 Uppon any entry error, or invalid login a message in red is displayed below the screen header
 
 
--------
-## Under Development
+## Running the API and the APP with NodeJS
 
-- The rest of the README file
+### Node modules requirements
 
-### API
+#### API
+To run the API you will need to install the following node modules:
 
-- Preventing the creation of two users with the same e-mail
-- Upload of images to AWS s3
-- Extra features
-
-
-### APP
-
-- Login with Facebook
-- Extra features
+    body-parser
+    express
+    joi
+    mongoose
+    morgan
