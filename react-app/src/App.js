@@ -231,9 +231,8 @@ class App extends Component {
 		if(this.state.tempUser.password === this.state.tempUser.rePassword){
 			axios.post(usersUrl, this.state.tempUser)
 				.then( ()=>{
-					const user = [this.state.tempUser];
-					this.setState({users: user, errorMessage: null});
-					this.showGetCarHandler();
+					this.setState({errorMessage: null});
+					this.loginHandler();
 				})
 				.catch(err => {
 					console.log(err);
