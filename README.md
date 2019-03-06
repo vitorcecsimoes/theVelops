@@ -1,6 +1,8 @@
 # theVelops
 -----
-This is the solution to the theVelops Assessment
+This is a prototype of a website developed as an assesment to the theVelops company.
+
+It has a working REST API integrated with mongoDB and the front end part of the website
 
 ## API
 The REST API is in the folder "api" and it has the following routes
