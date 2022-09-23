@@ -60,7 +60,7 @@ The request must be an JSON array and the elements must have two properties:
 ## APP
 The REACT APP is in the react-app folder
 
-It currently has the folloeing screens:
+It currently has the following screens:
 
 #### Login Screen
 - With Email, and Password fields
@@ -95,8 +95,8 @@ It has all the fields to edit the user information. The fields are already fille
 
 #### Edit Password
 
--an old-password field that confirms if the old password is valid before sending the PUT request to change password
--a new password and a re-type password field that validade with each other to check if both entry are the same before sending the put request. 
+- an old-password field that confirms if the old password is valid before sending the PUT request to change password
+- a new password and a re-type password field that validade with each other to check if both entry are the same before sending the put request. 
 
 #### Add User Car
 
